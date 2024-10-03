@@ -1,0 +1,69 @@
+From f19ba4d9bebd356c5770bf962eb7b71abb1bfc5c Mon Sep 17 00:00:00 2001
+From: kalabkassa <kalabkassa@gmail.com>
+Date: Wed, 2 Oct 2024 22:12:33 +0300
+Subject: [PATCH] both price and ratio erro fixed
+
+---
+ Pipfile    | 12 ++++++++++++
+ client3.py | 10 +++++++---
+ 2 files changed, 19 insertions(+), 3 deletions(-)
+ create mode 100644 Pipfile
+
+diff --git a/Pipfile b/Pipfile
+new file mode 100644
+index 0000000..3a6d5f6
+--- /dev/null
++++ b/Pipfile
+@@ -0,0 +1,12 @@
++[[source]]
++url = "https://pypi.org/simple"
++verify_ssl = true
++name = "pypi"
++
++[packages]
++python-dateutil = "==2.8.2"
++
++[dev-packages]
++
++[requires]
++python_version = "3.12"
+diff --git a/client3.py b/client3.py
+index 3fc09b7..76fc15b 100644
+--- a/client3.py
++++ b/client3.py
+@@ -35,25 +35,29 @@ def getDataPoint(quote):
+     stock = quote['stock']
+     bid_price = float(quote['top_bid']['price'])
+     ask_price = float(quote['top_ask']['price'])
+-    price = bid_price
++    price = (bid_price + ask_price)/2
+     return stock, bid_price, ask_price, price
+ 
+ 
+ def getRatio(price_a, price_b):
+     """ Get ratio of price_a and price_b """
+     """ ------------- Update this function ------------- """
+-    return 1
++    if price_b == 0:
++        return 
++    return price_a/price_b
+ 
+ 
+ # Main
+ if __name__ == "__main__":
+     # Query the price once every N seconds.
++    prices = dict()
+     for _ in iter(range(N)):
+         quotes = json.loads(urllib.request.urlopen(QUERY.format(random.random())).read())
+ 
+         """ ----------- Update to get the ratio --------------- """
+         for quote in quotes:
+             stock, bid_price, ask_price, price = getDataPoint(quote)
++            prices[stock] = price 
+             print("Quoted %s at (bid:%s, ask:%s, price:%s)" % (stock, bid_price, ask_price, price))
+ 
+-        print("Ratio %s" % getRatio(price, price))
++        print("Ratio %s" % getRatio(prices["ABC"], prices["DEF"]))
+-- 
+2.46.0
+
